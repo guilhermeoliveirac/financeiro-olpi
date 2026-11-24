@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import io
 import json
+import os
 import tempfile
 from datetime import date, timedelta
 from decimal import Decimal
@@ -34,7 +35,8 @@ User = get_user_model()
 
 class Base(TestCase):
     def setUp(self):
-        call_command("seed_inicial", verbosity=0)
+        with patch.dict(os.environ, {"SEED_EMPRESA_NOME": "Empresa"}):
+            call_command("seed_inicial", verbosity=0)
         pfs = list(Titular.objects.filter(tipo="PF").order_by("nome"))
         self.titular1 = pfs[0]
         self.titular2 = pfs[1]
@@ -391,7 +393,7 @@ class PaginasTests(Base):
         # todas as páginas abrem
         urls = [
             reverse("dashboard"), reverse("dashboard") + "?mes=2026-01",
-            reverse("dashboard") + "?escopo=familia", reverse("fluxo_caixa"),
+            reverse("dashboard") + "?escopo=pessoal", reverse("fluxo_caixa"),
             reverse("lancamentos"), reverse("lancamentos") + "?mes=todos&tipo=D&q=gel",
             reverse("lancamentos_csv"), reverse("importar_extrato"),
             reverse("a_vencer"), reverse("fechamento_mensal"),
@@ -496,6 +498,43 @@ class PaginasTests(Base):
         conteudo = b"".join(resp.streaming_content).decode("utf-8")
         self.assertIn("'=HYPERLINK", conteudo)
 
+    def test_parte_empresarial_oculta_sem_empresa_cadastrada(self):
+        self.empresa.ativo = False
+        self.empresa.save()
+
+        for url in (reverse("dashboard"), reverse("fluxo_caixa"), reverse("relatorios")):
+            r = self.client.get(url)
+            self.assertEqual(r.status_code, 200)
+            self.assertFalse(r.context["tem_empresa"])
+            self.assertNotContains(r, f'href="{reverse("empresa")}"')
+            self.assertNotContains(r, "Empresa (PJ)")
+
+        r_escopo = self.client.get(reverse("dashboard") + "?escopo=empresa")
+        self.assertEqual(r_escopo.status_code, 200)
+        self.assertEqual(r_escopo.context["escopo"], "todos")
+
+        self.empresa.ativo = True
+        self.empresa.save()
+        r_ativo = self.client.get(reverse("dashboard"))
+        self.assertTrue(r_ativo.context["tem_empresa"])
+        self.assertContains(r_ativo, f'href="{reverse("empresa")}"')
+        self.assertContains(r_ativo, "Empresa (PJ)")
+
+
+class SeedInicialTests(TestCase):
+    def test_seed_sem_empresa_cria_apenas_pf(self):
+        with patch.dict(os.environ, {"SEED_EMPRESA_NOME": "", "SEED_TITULARES": ""}):
+            call_command("seed_inicial", verbosity=0)
+        self.assertFalse(Titular.objects.filter(tipo=Titular.PJ).exists())
+        self.assertFalse(CentroCusto.objects.filter(empresa=True).exists())
+        self.assertTrue(CentroCusto.objects.filter(codigo_sistema="casa").exists())
+
+    def test_seed_com_empresa_cria_pj_e_centro(self):
+        with patch.dict(os.environ, {"SEED_EMPRESA_NOME": "Minha Empresa", "SEED_TITULARES": ""}):
+            call_command("seed_inicial", verbosity=0)
+        self.assertTrue(Titular.objects.filter(nome="Minha Empresa", tipo=Titular.PJ).exists())
+        self.assertTrue(CentroCusto.objects.filter(nome="Minha Empresa", empresa=True, codigo_sistema="empresa").exists())
+
 
 class SegurancaEPainelAdminTests(Base):
     def setUp(self):
@@ -532,8 +571,8 @@ class SegurancaEPainelAdminTests(Base):
             {
                 "username": "usuario2",
                 "first_name": "Titular 2",
-                "password1": "SenhaEsposa#99",
-                "password2": "SenhaEsposa#99",
+                "password1": "SenhaTeste#99",
+                "password2": "SenhaTeste#99",
                 "titular": self.titular2.pk,
                 "telegram_chat_id": "123456789",
                 "is_active": "on",
@@ -610,7 +649,7 @@ class SegurancaEPainelAdminTests(Base):
         self.assertTrue(RegistroAuditoria.objects.filter(modelo="lancamento", acao=RegistroAuditoria.EXCLUIR, objeto_id=str(lanc.pk)).exists())
 
 
-class FluxosFamiliaresTests(Base):
+class FluxosFinanceirosTests(Base):
     def setUp(self):
         super().setUp()
         self.user = User.objects.create_superuser("admin_teste", "admin@example.com", "SenhaForte#123")

@@ -8,6 +8,7 @@ from django.http import HttpRequest, HttpResponse
 from django.shortcuts import render
 from django.utils.http import url_has_allowed_host_and_scheme
 
+from ..services import tem_empresa_ativa
 from ..utils import ano_valido, hoje, mes_str, somar_meses
 
 ZERO = Decimal("0.00")
@@ -48,8 +49,10 @@ def _ano(request: HttpRequest) -> int:
 
 
 def _escopo(request: HttpRequest) -> str:
+    if not tem_empresa_ativa(request):
+        return "todos"
     val = (request.GET.get("escopo") or "todos").strip().lower()
-    return val if val in ("todos", "familia", "empresa") else "todos"
+    return val if val in ("todos", "pessoal", "empresa") else "todos"
 
 
 def _render_form(request: HttpRequest, form, titulo: str, voltar: str, **extra: Any) -> HttpResponse:

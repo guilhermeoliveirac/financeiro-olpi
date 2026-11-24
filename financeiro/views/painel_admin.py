@@ -319,7 +319,7 @@ def admin_integracoes(request: HttpRequest) -> HttpResponse:
 @login_required
 @require_POST
 def admin_integracao_testar_telegram(request: HttpRequest) -> HttpResponse:
-    ok, detalhe = enviar_telegram("Teste de conexão · Finanças de Casa (OLPI) funcionando!")
+    ok, detalhe = enviar_telegram("Teste de conexão · Controle Financeiro funcionando!")
     if ok:
         messages.success(request, detalhe)
     else:

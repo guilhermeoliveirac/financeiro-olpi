@@ -65,7 +65,7 @@ class Titular(models.Model):
 
 
 class CentroCusto(models.Model):
-    """Para onde vai o dinheiro: Casa, Veículo, OLPI..."""
+    """Para onde vai o dinheiro: Casa, Veículo, Empresa..."""
 
     nome = models.CharField("nome", max_length=60, unique=True)
     descricao = models.CharField("descrição", max_length=200, blank=True)
@@ -175,7 +175,7 @@ class Conta(models.Model):
         blank=True,
         on_delete=models.SET_NULL,
         related_name="+",
-        help_text="Preenchido automaticamente nos lançamentos desta conta (ex.: OLPI na conta da empresa).",
+        help_text="Preenchido automaticamente nos lançamentos desta conta (ex.: Empresa na conta PJ).",
     )
     conciliado_ate = models.DateField("conciliado até", null=True, blank=True)
     bloqueado_ate = models.DateField(
@@ -432,7 +432,7 @@ class Fatura(models.Model):
 
 
 class Veiculo(models.Model):
-    nome = models.CharField("nome", max_length=80, help_text="Ex.: Carro da família")
+    nome = models.CharField("nome", max_length=80, help_text="Ex.: Carro principal")
     marca = models.CharField("marca", max_length=60, blank=True)
     modelo = models.CharField("modelo", max_length=60, blank=True)
     ano = models.PositiveSmallIntegerField("ano", null=True, blank=True)
@@ -992,7 +992,7 @@ class Orcamento(models.Model):
 
 
 # ---------------------------------------------------------------------------
-# Auditoria, Integrações, Segurança e Evolução Familiar
+# Auditoria, Integrações, Segurança e Planejamento
 # ---------------------------------------------------------------------------
 
 

@@ -193,7 +193,7 @@ class Migration(migrations.Migration):
                     "centro_padrao",
                     models.ForeignKey(
                         blank=True,
-                        help_text="Preenchido automaticamente nos lançamentos desta conta (ex.: OLPI na conta da empresa).",
+                        help_text="Preenchido automaticamente nos lançamentos desta conta (ex.: Empresa na conta PJ).",
                         null=True,
                         on_delete=django.db.models.deletion.SET_NULL,
                         related_name="+",
@@ -740,7 +740,7 @@ class Migration(migrations.Migration):
                 (
                     "nome",
                     models.CharField(
-                        help_text="Ex.: Carro da família",
+                        help_text="Ex.: Carro principal",
                         max_length=80,
                         verbose_name="nome",
                     ),

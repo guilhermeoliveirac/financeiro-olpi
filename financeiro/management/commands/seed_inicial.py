@@ -6,13 +6,24 @@ from django.db import transaction
 
 from financeiro.models import Categoria, CentroCusto, Titular
 
-TITULARES_PADRAO = [("Titular 1", "PF"), ("Titular 2", "PF"), ("Empresa", "PJ")]
+TITULARES_PADRAO = [("Titular 1", "PF"), ("Titular 2", "PF")]
+
+
+def _nome_empresa_seed() -> str:
+    empresa_nome = os.environ.get("SEED_EMPRESA_NOME", "").strip()[:60]
+    if not empresa_nome or empresa_nome.lower() in ("casa", "veículo", "veiculo"):
+        return ""
+    return empresa_nome
 
 
 def _obter_titulares_iniciais() -> list[tuple[str, str]]:
     bruto = os.environ.get("SEED_TITULARES", "").strip()
     if not bruto:
-        return list(TITULARES_PADRAO)
+        titulares = list(TITULARES_PADRAO)
+        empresa_nome = _nome_empresa_seed()
+        if empresa_nome:
+            titulares.append((empresa_nome, "PJ"))
+        return titulares
     resultado: list[tuple[str, str]] = []
     vistos: set[str] = set()
     for item in bruto.split(","):
@@ -32,22 +43,28 @@ def _obter_titulares_iniciais() -> list[tuple[str, str]]:
             continue
         vistos.add(chave)
         resultado.append((nome, tipo))
-    return resultado or list(TITULARES_PADRAO)
+    if resultado:
+        return resultado
+    titulares = list(TITULARES_PADRAO)
+    empresa_nome = _nome_empresa_seed()
+    if empresa_nome:
+        titulares.append((empresa_nome, "PJ"))
+    return titulares
 
 
 def _obter_centros_iniciais() -> list[tuple[str, str, bool, str]]:
-    empresa_nome = os.environ.get("SEED_EMPRESA_NOME", "").strip()[:60]
-    if not empresa_nome or empresa_nome.lower() in ("casa", "veículo", "veiculo"):
-        empresa_nome = "Empresa"
-    empresa_desc = (
-        os.environ.get("SEED_EMPRESA_DESCRICAO", "").strip()[:200]
-        or "Receitas e despesas da empresa"
-    )
-    return [
-        ("Casa", "Despesas e receitas da família", False, "casa"),
+    centros = [
+        ("Casa", "Despesas e receitas residenciais e pessoais", False, "casa"),
         ("Veículo", "Combustível, manutenção e custos do carro", False, "veiculo"),
-        (empresa_nome, empresa_desc, True, "empresa"),
     ]
+    empresa_nome = _nome_empresa_seed()
+    if empresa_nome:
+        empresa_desc = (
+            os.environ.get("SEED_EMPRESA_DESCRICAO", "").strip()[:200]
+            or "Receitas e despesas da empresa"
+        )
+        centros.append((empresa_nome, empresa_desc, True, "empresa"))
+    return centros
 
 DESPESAS = {
     "Moradia": ["Aluguel / financiamento", "Condomínio", "Energia", "Água", "Internet e telefone", "Gás", "Manutenção da casa", "Móveis e utensílios"],

@@ -3,7 +3,10 @@
 {% block conteudo %}
 {% if not centro %}
 <div class="page-head"><h1>Empresa</h1></div>
-<div class="alert alert-info">Marque um centro de custo como <strong>“é empresa”</strong> em <a href="{% url 'config_lista' 'centros' %}">Configurações › Centros de custo</a> para ver este relatório.</div>
+<div class="alert alert-info d-flex flex-wrap align-items-center justify-content-between gap-2">
+  <div>Nenhuma empresa cadastrada ainda. Marque um centro de custo como <strong>“é empresa”</strong> em <a href="{% url 'config_lista' 'centros' %}">Configurações › Centros de custo</a> para ativar este relatório.</div>
+  <a class="btn btn-sm btn-primary" href="{% url 'config_novo' 'centros' %}">Cadastrar empresa</a>
+</div>
 {% else %}
 <div class="page-head">
   <div>

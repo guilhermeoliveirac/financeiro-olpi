@@ -4,11 +4,13 @@
 <div class="page-head">
   <div class="d-flex flex-wrap align-items-center gap-2">
     <h1>Painel</h1>
+    {% if tem_empresa %}
     <div class="btn-group btn-group-sm" role="group" aria-label="Escopo">
       <a class="btn {% if escopo == 'todos' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?mes={{ nav.atual }}&escopo=todos">Consolidado</a>
-      <a class="btn {% if escopo == 'familia' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?mes={{ nav.atual }}&escopo=familia">Família (PF)</a>
-      <a class="btn {% if escopo == 'empresa' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?mes={{ nav.atual }}&escopo=empresa">Empresa (OLPI)</a>
+      <a class="btn {% if escopo == 'pessoal' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?mes={{ nav.atual }}&escopo=pessoal">Pessoal (PF)</a>
+      <a class="btn {% if escopo == 'empresa' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?mes={{ nav.atual }}&escopo=empresa">Empresa (PJ)</a>
     </div>
+    {% endif %}
   </div>
   {% include "financeiro/_mes_nav.html" %}
 </div>

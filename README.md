@@ -1,6 +1,6 @@
-# Finanças de Casa
+# Controle Financeiro
 
-Sistema financeiro da família e da OLPI: contas bancárias, cartões de crédito com faturas e parcelas, despesas recorrentes, contas a vencer, fluxo de caixa projetado, orçamento com vigência, metas, rateio familiar, importação OFX/CSV, conciliação e fechamento mensal, controle do veículo, relatório da empresa e Painel Admin da aplicação.
+Sistema de controle financeiro pessoal e empresarial (PF e PJ): contas bancárias, cartões de crédito com faturas e parcelas, despesas recorrentes, contas a vencer, fluxo de caixa projetado, orçamento com vigência, metas, rateio entre titulares, importação OFX/CSV, conciliação e fechamento mensal, controle do veículo, relatório da empresa e Painel Admin da aplicação.
 
 Feito em **Django 5.2 + PostgreSQL 16**, empacotado com **Docker Compose**. As telas são responsivas para o celular (com suporte a instalação como PWA) e funcionam sem internet externa (bibliotecas embutidas).
 
@@ -46,7 +46,7 @@ Após o primeiro login, recomenda-se remover `DJANGO_SUPERUSER_PASSWORD` do `.en
 
 No menu do usuário (ou em **Configurações › Painel Admin da Aplicação**):
 
-- **Usuários:** crie e edite os acessos da família, vincule cada usuário ao seu **Titular** e configure o **Telegram Chat ID** individual, além de redefinir senhas.
+- **Usuários:** crie e edite os acessos dos usuários, vincule cada usuário ao seu **Titular** e configure o **Telegram Chat ID** individual, além de redefinir senhas.
 - **Auditoria:** todos os lançamentos, edições (com diff campo a campo), exclusões, pagamentos, conciliações e ações administrativas registram **quem fez, quando e de qual IP**.
 - **Sessões & Login:** visualize sessões abertas, encerre sessões antigas e desbloqueie tentativas de login travadas pela proteção contra força bruta (`LOGIN_MAX_TENTATIVAS` / `LOGIN_BLOQUEIO_MINUTOS`).
 - **Integrações (Telegram, IA e Alertas):** configure o Bot do Telegram, credenciais/instruções para futuro Assistente de IA (Gemini, OpenAI, Anthropic ou Ollama) e regras de alertas automáticos (sem expor chaves já salvas na tela).
@@ -58,13 +58,14 @@ No menu do usuário (ou em **Configurações › Painel Admin da Aplicação**):
 
 Em **Configurações**:
 
-1. **Titulares**: vêm com padrão genérico (*Titular 1*, *Titular 2*, *Empresa*) ou podem ser definidos via `SEED_TITULARES` e `SEED_EMPRESA_NOME` no `.env` antes da primeira subida (e editados depois em **Configurações** e vinculados aos usuários no Painel Admin).
-2. **Contas bancárias**: cadastre com o **saldo inicial** e a **data do saldo inicial** (movimentos anteriores a essa data não distorcem o saldo atual).
-   - Na conta da OLPI, escolha **Centro de custo padrão = OLPI**.
-3. **Cartões de crédito**: nome, limite, **dia de fechamento**, **dia de vencimento** e a conta que paga a fatura.
-4. **Veículos**: cadastre o carro com o hodômetro atual em "km inicial".
-5. **Categorias e Regras automáticas**: ajuste as categorias e cadastre regras por palavra-chave (ex.: `IFOOD`, `POSTO`) para categorizar importações OFX/CSV automaticamente.
-6. **Recorrentes**: cadastre aluguel, energia, internet, plano de saúde, DAS…
+1. **Titulares**: vêm com padrão genérico (*Titular 1*, *Titular 2*) ou podem ser definidos via `SEED_TITULARES` no `.env` antes da primeira subida (e editados depois em **Configurações** e vinculados aos usuários no Painel Admin).
+2. **Módulo empresarial (opcional)**: o menu **Empresa** e o filtro **PF × PJ** só aparecem quando houver ao menos um centro de custo ativo marcado como **é empresa** — preencha `SEED_EMPRESA_NOME` no `.env` antes da primeira subida ou cadastre depois em **Configurações › Centros de custo**.
+3. **Contas bancárias**: cadastre com o **saldo inicial** e a **data do saldo inicial** (movimentos anteriores a essa data não distorcem o saldo atual).
+   - Na conta da empresa (PJ), caso utilize, escolha **Centro de custo padrão = Empresa** (ou o nome cadastrado para sua empresa).
+4. **Cartões de crédito**: nome, limite, **dia de fechamento**, **dia de vencimento** e a conta que paga a fatura.
+5. **Veículos**: cadastre o carro com o hodômetro atual em "km inicial".
+6. **Categorias e Regras automáticas**: ajuste as categorias e cadastre regras por palavra-chave (ex.: `IFOOD`, `POSTO`) para categorizar importações OFX/CSV automaticamente.
+7. **Recorrentes**: cadastre aluguel, energia, internet, plano de saúde, DAS…
 
 ### Guia rápido de uso
 
@@ -73,14 +74,14 @@ Em **Configurações**:
 | Compra no débito/PIX | **Despesa**, pagar com *Conta bancária* |
 | Compra no cartão | **Despesa**, pagar com *Cartão*. Informe as **parcelas**: cada uma cai numa fatura consecutiva |
 | Conta a pagar futura (boleto) | **Despesa** com "Já foi pago" desmarcado e o **vencimento** (anexe o boleto/comprovante se desejar) |
-| Salário, cliente pagou a OLPI | **Receita** na conta correspondente |
+| Salário, recebimento de cliente | **Receita** na conta correspondente |
 | Mover dinheiro / Pró-labore | **Transferência**: não conta como receita nem despesa e aparece como retirada/aporte na empresa |
 | Estorno ou reembolso | **Estorno**: abate da fatura/conta e das despesas da categoria sem inflar receitas |
 | Importar extrato do banco/cartão | **Lançamentos → ▾ → Importar extrato (OFX/CSV)** com deduplicação automática |
-| Fluxo futuro / Rateio / Metas | Menu **Fluxo** e **Relatórios** (*Rateio familiar*, *Metas e reservas*, *Fechamento mensal*) |
+| Fluxo futuro / Rateio / Metas | Menu **Fluxo** e **Relatórios** (*Rateio entre titulares*, *Metas e reservas*, *Fechamento mensal*) |
 | Abastecimento e manutenção | **Veículo → Abastecer / Manutenção** |
 
-**Escopo PF × PJ.** No **Painel** e nos **Relatórios**, alterne entre *Consolidado*, *Família (PF)* e *Empresa (OLPI)*.
+**Escopo PF × PJ.** Quando houver empresa cadastrada, alterne no **Painel**, no **Fluxo** e nos **Relatórios** entre *Consolidado*, *Pessoal (PF)* e *Empresa (PJ)*.
 
 **Exportar.** Em **Lançamentos → ▾ → Exportar CSV** (protegido contra fórmulas maliciosas em planilhas).
 

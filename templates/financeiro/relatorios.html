@@ -4,11 +4,13 @@
 <div class="page-head">
   <div class="d-flex flex-wrap align-items-center gap-2">
     <h1>Relatório de {{ ano }}</h1>
+    {% if tem_empresa %}
     <div class="btn-group btn-group-sm" role="group">
       <a class="btn {% if escopo == 'todos' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?ano={{ ano }}&escopo=todos">Consolidado</a>
-      <a class="btn {% if escopo == 'familia' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?ano={{ ano }}&escopo=familia">Família (PF)</a>
-      <a class="btn {% if escopo == 'empresa' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?ano={{ ano }}&escopo=empresa">Empresa (OLPI)</a>
+      <a class="btn {% if escopo == 'pessoal' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?ano={{ ano }}&escopo=pessoal">Pessoal (PF)</a>
+      <a class="btn {% if escopo == 'empresa' %}btn-primary{% else %}btn-outline-secondary{% endif %}" href="?ano={{ ano }}&escopo=empresa">Empresa (PJ)</a>
     </div>
+    {% endif %}
   </div>
   <div class="d-flex gap-2">
     <a class="btn btn-outline-primary" href="{% url 'rateio' %}"><i class="bi bi-people"></i> Rateio</a>

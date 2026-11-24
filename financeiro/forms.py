@@ -476,7 +476,7 @@ class IntegracaoTelegramForm(EstiloMixin, forms.Form):
     chat_id = forms.CharField(
         required=False,
         max_length=80,
-        label="Chat ID padrão da família",
+        label="Chat ID padrão",
         help_text="ID do chat ou grupo onde os avisos serão enviados.",
     )
 

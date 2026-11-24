@@ -55,7 +55,7 @@ def api_resumo(request: HttpRequest) -> JsonResponse:
 def manifest_pwa(request: HttpRequest) -> JsonResponse:
     return JsonResponse(
         {
-            "name": "Finanças de Casa · OLPI",
+            "name": "Controle Financeiro",
             "short_name": "Finanças",
             "start_url": "/",
             "display": "standalone",

@@ -31,6 +31,16 @@ IMPOSTO = Q(categoria__imposto=True) | Q(categoria__pai__imposto=True)
 CENTRO_EMPRESA = Q(centro__empresa=True)
 
 
+def tem_empresa_ativa(request: Any | None = None) -> bool:
+    """Indica se existe ao menos um centro de custo ativo marcado como empresa."""
+    if request is not None and hasattr(request, "_tem_empresa_cache"):
+        return bool(request._tem_empresa_cache)
+    resultado = CentroCusto.objects.filter(empresa=True, ativo=True).exists()
+    if request is not None:
+        request._tem_empresa_cache = resultado
+    return resultado
+
+
 def _cache_key_recorrencias(dia: date | None = None) -> str:
     return f"recorrencias_geradas:{(dia or hoje()).isoformat()}"
 
@@ -84,7 +94,7 @@ def por_mes(qs, liquido_despesa: bool = False) -> dict[date, Decimal]:
 
 
 def filtrar_escopo_lancamentos(qs, escopo: str):
-    if escopo == "familia":
+    if escopo == "pessoal":
         return qs.exclude(CENTRO_EMPRESA)
     if escopo == "empresa":
         return qs.filter(CENTRO_EMPRESA)
@@ -92,7 +102,7 @@ def filtrar_escopo_lancamentos(qs, escopo: str):
 
 
 def filtrar_escopo_contas(qs, escopo: str):
-    if escopo == "familia":
+    if escopo == "pessoal":
         return qs.filter(titular__tipo=Titular.PF)
     if escopo == "empresa":
         return qs.filter(Q(titular__tipo=Titular.PJ) | Q(centro_padrao__empresa=True))
@@ -797,7 +807,7 @@ def fluxo_caixa_projetado(dias: int = 60, conta_id: int | None = None, escopo: s
         if not conta_id and conta_pg and conta_pg.id not in ids_contas:
             continue
         if not conta_id and not conta_pg:
-            if escopo == "familia" and f.cartao.titular.tipo != Titular.PF:
+            if escopo == "pessoal" and f.cartao.titular.tipo != Titular.PF:
                 continue
             if escopo == "empresa" and f.cartao.titular.tipo != Titular.PJ:
                 continue
@@ -831,7 +841,7 @@ def fluxo_caixa_projetado(dias: int = 60, conta_id: int | None = None, escopo: s
                 if not conta_id and conta_pg and conta_pg.id not in ids_contas:
                     continue
                 if not conta_id and not conta_pg:
-                    if escopo == "familia" and r.cartao.titular.tipo != Titular.PF:
+                    if escopo == "pessoal" and r.cartao.titular.tipo != Titular.PF:
                         continue
                     if escopo == "empresa" and r.cartao.titular.tipo != Titular.PJ:
                         continue

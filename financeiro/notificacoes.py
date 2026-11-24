@@ -50,7 +50,7 @@ def montar_alertas() -> dict[str, Any]:
 def formatar_mensagem_alertas(resumo: dict[str, Any]) -> str:
     if resumo["total"] == 0:
         return "Tudo em ordem hoje! Nenhuma pendência ou alerta."
-    linhas = [f"Finanças de Casa · Resumo de {resumo['hoje']:%d/%m/%Y}"]
+    linhas = [f"Controle Financeiro · Resumo de {resumo['hoje']:%d/%m/%Y}"]
     if resumo["faturas"]:
         linhas.append("\nFaturas de cartão:")
         for f in resumo["faturas"]:

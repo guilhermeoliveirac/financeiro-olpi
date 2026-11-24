@@ -8,7 +8,7 @@ def popular_codigos_sistema(apps, schema_editor):
     centros = {
         "Casa": "casa",
         "Veículo": "veiculo",
-        "OLPI": "olpi",
+        "Empresa": "empresa",
     }
     for nome, codigo in centros.items():
         if not CentroCusto.objects.filter(codigo_sistema=codigo).exists():
